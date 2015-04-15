@@ -1,0 +1,185 @@
+body
+{
+   margin: 0px;
+   background-color: #3882cd;
+}
+
+h2
+{
+   text-align: center;
+   margin-top: 20px;
+   margin-bottom: 10px;
+}
+
+#header
+{
+   width: 100%;
+   position: fixed;
+   color: white;
+   z-index: 25;
+   min-width: 1000px;
+}
+
+#header .left
+{
+   float: left;
+   margin-left: 120px;
+}
+
+#header .right
+{
+   float: right;
+   margin-right: 140px;
+}
+
+#header #barBackground
+{
+   position: fixed;
+   width: 100%;
+   height: 65px;
+   z-index: -10;
+
+   background-color: #1f222e;
+   background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#1f222e), to(#2b5178));
+   background: -webkit-linear-gradient(top, #1f222e, #2b5178) no-repeat;
+   background: -moz-linear-gradient(top, #1f222e, #2b5178) no-repeat;
+   background: -o-linear-gradient(top, #1f222e, #2b5178) no-repeat;
+   background: -ms-linear-gradient(top, #1f222e, #2b5178) no-repeat;
+   background: linear-gradient(top, #1f222e, #2b5178) no-repeat;
+   -moz-box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.5);
+   -webkit-box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.5);
+   box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.5);
+}
+
+#header, #header table
+{
+   height: 65px;
+}
+
+#header .logo
+{
+   position: absolute;
+   top: 0px;
+   height: 120px;
+}
+
+#header .logoLeft
+{
+   left: 22px;
+}
+
+#header .logoRight
+{
+   right: 5px;
+}
+
+#header .logo img
+{
+   height: 100%;
+}
+
+#header table
+{
+   border-collapse: collapse;
+}
+
+#header table td
+{
+   padding: 0px;
+}
+
+#header .item
+{
+   position: relative;
+}
+
+#header .left .title
+{
+   font-size: 1.5em;
+   padding-left: 10px;
+}
+
+#header .label
+{
+   font-family: 'carme', sans-serif;
+   margin: 7px 0px;
+   padding: 3px 20px;
+}
+
+#header .item .link
+{
+   position: absolute;
+   width: 100%;
+   height: 100%;
+   top: 0;
+   left: 0;
+}
+
+#header .right .label
+{
+   border-right: 2px dotted green;
+}
+
+#header .right .last
+{
+   border-right: none;
+}
+
+#header .right .item5 .label
+{
+   border: none;
+}
+
+#header .right .item1:hover, #header .item1 .label span.selected
+{
+   color: #8c8cff;
+}
+
+#header .right .item2:hover, #header .item2 .label span.selected
+{
+   color: #ff6767;
+}
+
+#header .right .item3:hover, #header .item3 .label span.selected
+{
+   color: #9aff8c;
+}
+
+#header .right .item4:hover, #header .item4 .label span.selected
+{
+   color: #ffa13c;
+}
+
+#contentWrap
+{
+   padding: 75px 128px 100px 128px;
+}
+
+#content
+{
+   padding: 10px;
+   border-radius: 15px;
+   background-color: #F0F8FF;
+   min-width: 770px;
+   height: 100%;
+   overflow: auto; /*https://stackoverflow.com/questions/218760/how-do-you-keep-parents-of-floated-elements-from-collapsing */
+   font-family: Georgia, "Times New Roman", serif;
+}
+
+#content #title
+{
+   font-weight: bold;
+   font-size: 2.0em;
+   font-style: italic;
+   padding: 10px 0px;
+   margin: 0px auto;
+   margin-bottom: 10px;
+   width: 60%;
+   border-bottom: 2px dotted green;
+   text-align: center;
+}
+
+#content input[type=text]
+{
+   padding: 3px;
+}
