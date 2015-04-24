@@ -165,10 +165,14 @@ h2
    height: 100%;
    overflow: auto; /*https://stackoverflow.com/questions/218760/how-do-you-keep-parents-of-floated-elements-from-collapsing */
 
-   text-indent: 15px;
    font-family: Helvetica, Arial, sans-serif;
    font-size: 0.95em;
    color: #1a1a1a;
+}
+
+#content p
+{
+   text-indent: 15px;
 }
 
 #content #title
