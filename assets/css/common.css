@@ -17,7 +17,7 @@ h2
    position: fixed;
    color: white;
    z-index: 25;
-   min-width: 1000px;
+   min-width: 975px;
 }
 
 #header .left
@@ -65,6 +65,7 @@ h2
 
 #header .logoLeft
 {
+   top: 5px;
    left: 22px;
 }
 
@@ -157,13 +158,17 @@ h2
 
 #content
 {
-   padding: 10px;
+   padding: 15px;
    border-radius: 15px;
    background-color: #F0F8FF;
-   min-width: 770px;
+   min-width: 690px;
    height: 100%;
    overflow: auto; /*https://stackoverflow.com/questions/218760/how-do-you-keep-parents-of-floated-elements-from-collapsing */
-   font-family: Georgia, "Times New Roman", serif;
+
+   text-indent: 15px;
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 0.95em;
+   color: #1a1a1a;
 }
 
 #content #title
