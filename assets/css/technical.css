@@ -1,0 +1,35 @@
+
+#content .imgWrap
+{
+   float: right;
+   margin: 8px;
+   margin-right: 0px;
+}
+
+#content .imgWrap img
+{
+   width: 100%;
+}
+
+#content .centered
+{
+   width: 100%;
+   height: 325px;
+   padding: 20px 0px;
+}
+
+#content .centered img
+{
+   height: 100%;
+}
+
+#content .centered img:last-of-type
+{
+   float: right;
+}
+
+#content ul.crypto li
+{
+   padding: 8px 0px;
+   line-height: 1.5em;
+}
