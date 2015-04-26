@@ -40,13 +40,7 @@
    height: 100%;
    top: 0;
    left: 0;
-
-   /* edit: added z-index */
    z-index: 1;
-
-   /* edit: fixes overlap error in IE7/8,
-   make sure you have an empty gif */
-   background-image: url('../assets/images/empty.gif');
 }
 
 #main
