@@ -66,7 +66,7 @@ h2
 #header .logoLeft
 {
    top: 5px;
-   left: 22px;
+   left: 25px;
 }
 
 #header .logoRight
@@ -153,16 +153,21 @@ h2
 
 #contentWrap
 {
-   padding: 75px 128px 100px 128px;
+   padding-top: 75px;
+   padding-bottom: 100px;
+   margin: 0px auto;
+
+   min-width: 750px;
+   width: 80%;
+   max-width: 1220px;
 }
 
 #content
 {
+   height: 100%;
    padding: 15px;
    border-radius: 15px;
    background-color: #F0F8FF;
-   min-width: 690px;
-   height: 100%;
    overflow: auto; /*https://stackoverflow.com/questions/218760/how-do-you-keep-parents-of-floated-elements-from-collapsing */
 
    font-family: Helvetica, Arial, sans-serif;

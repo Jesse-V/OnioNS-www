@@ -5,6 +5,7 @@
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
       <link rel="stylesheet" type="text/css" href="assets/css/common.css" />
       <link rel="stylesheet" type="text/css" href="assets/css/sideNav.css" />
+      <link rel="stylesheet" type="text/css" href="assets/css/about.css" />
    </head>
    <body>
       <div id="header">
@@ -25,11 +26,11 @@
             <table>
                <tr>
                   <td class="item item1">
-                     <div class="label"><span class="wrapper selected">Home</span></div>
+                     <div class="label"><span class="wrapper">Home</span></div>
                         <a href="index.html"><span class="link"></span></a>
                   </td>
                   <td class="item item2">
-                     <div class="label"><span class="wrapper">About</span></div>
+                     <div class="label"><span class="wrapper selected">About</span></div>
                         <a href="about.html"><span class="link"></span></a>
                   </td>
                   <td class="item item3">
@@ -54,8 +55,13 @@
             <div id="sideNav">
                <div class="item">
                   <img src="assets/images/right-arrow.jpg" alt="Right arrow">
-                  <div class="title">Overview</div>
+                  <div class="title">Introduction</div>
                   <a href="#top"><span class="link"></span></a>
+               </div>
+               <div class="item">
+                  <img src="assets/images/right-arrow.jpg" alt="Right arrow">
+                  <div class="title">Overview</div>
+                  <a href="#overview"><span class="link"></span></a>
                </div>
                <div class="item">
                   <img src="assets/images/right-arrow.jpg" alt="Right arrow">
@@ -79,53 +85,116 @@
                </div>
                <div class="item">
                   <img src="assets/images/right-arrow.jpg" alt="Right arrow">
-                  <div class="title">Client Lookups</div>
+                  <div class="title">Lookups</div>
                   <a href="#lookups"><span class="link"></span></a>
                </div>
             </div>
             <div id="main">
                <h2>OnioNS Overview</h2>
+
+               <h3>Introduction to Tor Hidden Services</h3>
                <p>
-                  High-level descriptions about how OnioNS works
+                  <a href="https://www.torproject.org">Tor</a> is a third-generation onion router. Tor's primary purpose is to provide <a href="https://www.torproject.org/about/torusers.html.en">users</a> with a strong degree of privacy and anonymity while browsing the Internet. It also provides resistance to Internet censorship and is one of the most effective tools against traffic analysis. Tor is well understood in academic literature and has stood up relatively well against scrutiny across its 10+ year lifetime, and it maintains a strong community and active development. Its network spans nearly 7,000 routers in 81 countries and consistently moves nearly 60 Gbits of traffic for about 2.2 million daily users. Needless to say, Tor is both a valuable tool and very popular.
+               </p>
+               <div class="imgWrap" style="width: 360px;">
+                  <img src="assets/images/about/onion_diagram.svgz" alt="Encyption onion layers"/>
+               </div>
+               <p>
+                  Tor provides an excellent <a href="https://www.torproject.org/about/overview.html.en">overview page</a> on how Tor works, so we will not reiterate it here. In summary though, Tor routes user traffic through three routers in the network, akin to using three randomly-selected VPNs or encrypted proxies in a row. A user negotiates encryption keys with each of these routers, then encrypts their web request with each of the keys. As their request passes through the network over the <i>circuit</i>, each Tor router decrypts a layer like the pealing of an onion. The final router reveals the website, loads the webpage, returns it, and the response is re-encrypted all the way back. In this way, the user has privacy (a separation of their identity with their activities) and is anonymous (indistinguishable from other users) with respect to the website they were visiting.
+               </p>
+               <p>
+                  Tor is also known for its support of <a href="https://www.torproject.org/docs/hidden-services.html.en">hidden services</a>, which are traditionally websites of unknown location or ownership. They purposely hide their location using the Tor network using circuits. Due to the privacy-enhancing nature of Tor circuits, it is exceedingly difficult to know where they are, so there is bi-directional anonymity. Tor supports nearly 27,000 hidden services, providing services such as <a href="https://en.wikipedia.org/wiki/DuckDuckGo">search engines</a>, marketplaces, email providers, and <a href="https://en.wikipedia.org/wiki/SecureDrop">media outlets</a>.
+               </p>
+               <div class="imgWrap" style="width: 500px;">
+                  <img src="assets/images/about/DDG_HS.png" alt="DuckDuckGo hidden service">
+               </div>
+               <p>
+                  Hidden services (HS) can be accessed through a special Tor-only address, which is algorithmically derived from the service's public identity key. Anyone can ask the HS to prove that it maintains this key, thus proving the association between HS and its address. However, this verification comes at a price: the address carries no meaningful information so it is impossible to label or classify HS addresses in advance. <a name="overview"></a> HS addresses are essentially a random sequence of characters with the <a href="https://en.wikipedia.org/wiki/.onion">.onion pseudo-TLD</a> so they are very impractical to enter into the Tor Browser. Consequently, Tor communities spend enormous amounts of time generating and maintaining directories of HSs, but this workaround is still not practical. Under OnioNS, a HS can now be accessed by a unique meaningful domain name of the HS operator's choosing, a practical solution to this problem.
                </p>
 
-               <a name="structures"></a>
+               <div class="imgWrap" style="width: 300px;">
+                  <img src="assets/images/about/overview.svgz" alt="OnioNS overview">
+               </div>
+               <h3>Overview of OnioNS</h3>
                <p>
-                  Records & Pages
+                  The Onion Name System (OnioNS) is a distributed DNS that associates meaningful and globally-unique .tor domain names with .onion hidden service addresses. It is one of very few naming systems to achieve all three properties of <a href="https://en.wikipedia.org/wiki/Zooko%27s_triangle">Zooko's Triangle</a>. Unlike most of its competitors, OnioNS does not rely on cryptocurrency technologies such as a blockchain or mining; instead, it uses a distributed data structure that is maintained by routers in the Tor network.
                </p>
-               <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+               <p>
+                  OnioNS' design centers around some basic high-level procedures. First, a hidden service operator selects a meaningful name, links that name to his HS address, and seals that association by digitally signing it with his identity key. Then, he broadcasts it over a Tor circuit to OnioNS servers in the Tor network and receives a confirmation of its acceptance. <a name="structures"></a> Next, the network sends his association to all involved participants, so everyone gets the message. Later, a user queries over another Tor circuit for the HS domain name. They receive the association, verify the digital signature, and then looks up the HS in the traditional manner.
+               </p>
+
+               <h3>Records & Pages</h3>
+               <div class="imgWrap" style="width: 430px;">
+                  <img src="assets/images/about/network_view.png" alt="Network-level view">
+                  <!-- network_view.svgz -->
+               </div>
+               <p>
+                  OnioNS has two fundamental data structures: <i>Records</i> and <i>Pages</i>.
+               </p>
+               <ul>
+                  <li>
+                     <b>Records</b> holds the DNS information managed by a HS. They hold one or more associations between a .tor domain name and another location in the Tor Darknet. This could be .tor to .tor or .tor to .onion. For example, we pointed <b>example.tor</b> at <b>onions55e7yam27n.onion</b>, <b>ddg.example.tor</b> at <b>3g2upl4pq6kufc4m.onion</b>, and <b>sub.example.tor</b> at <b>onions.tor</b>. Once a HS claims a <a href="https://en.wikipedia.org/wiki/Second-level_domain">second-level domain</a> (such as example.tor) he controls all subdomains under that domain. For example, we control example.tor, sub.example.tor, sub.sub.example.tor, and so on.
+                     <p>
+                        Records are created and self-signed by HS operators, transmitted through the network, and received by a user. Records also contain evidence of <a href="https://en.wikipedia.org/wiki/Proof-of-work_system">proof-of-work</a>, allowing everyone to verify that the HS operator spent the computational cost require to generate a Record.
+                     </p>
+                  </li>
+                  <li>
+                     <b>Pages</b> contain Records. They are designed for long-term storage and are read-only once finalized. Each Page also contains a reference to a previous Page, forming a <i>Pagechain</i>. This is an incredibly useful feature as the references protect the long-term integrity of Pages and allow the entire structure to be distributed. When a HS broadcasts a new Record, the network merges it into the latest Page. Assuming that everyone follows the rules, everyone will be on the same Page.
+                     <p>
+                        <a name="quorum"></a> Although the Pagechain is similar in design to the BTC/NMC blockchain, in practice the Pagechain differs in two key ways: 1) the head of the Pagechain is maintained by a subset of Tor routers called the Quorum (discussed below) rather than cryptocurrency miners, and 2) the Pagechain has a finite maximal length. This second property means that the oldest Page is dropped when a new one is added, so domain names must be renewed periodically to keep the Record in the system.
+                     </p>
+                  </li>
+               </ul>
 
                <a name="quorum"></a>
+               <h3>The Quorum</h3>
                <p>
-                  The Quorum
+                  The Quorum is a small subset of Tor nodes that are chosen to maintain the latest Page at the head of the Pagechain. They are responsible for receiving Records, processing them, and telling others about them. When a Quorum node receives and accepts a Record, it places it in a short-term cache and later transmits the cache to all other Quorum members. It then merges the Record into its local Page, digitally signs its Record, and broadcasts its signature. If all goes well, every Quorum member will be signing the exact same Page.
                </p>
-               <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+               <p>
+                  Tor's network is dynamic, with routers changing, leaving, and joining the network constantly. To keep everyone up-to-date, Tor directory authorities periodically publish a network status document, describing the state and size of the Tor network. The document can't be predicted in advance, but if archived it can be authenticated retroactively. It's a source of unpredictable information that everyone agrees on, and OnioNS uses the network document to derive the Quorum. OnioNS changes to a new Quorum every week, so Quorum nodes have a limited lifetime and temporary responsibility.
+               </p>
+               <p>
+                  <a name="network"></a> Any participant in Tor can derive the Quorum: first, they fetch the network status at midnight at the beginning of the current week. Second, they find the Tor relays that are advertising themselves as part of OnioNS. Third, they randomly choose 127 of them. Their selection here is deterministic based on the contents of the document. Those 127 OnioNS-enabled Tor routers are the Quorum. Every OnioNS-powered Tor node has an equal chance of being selected, which is currently about 2.3 percent.
+               </p>
 
-               <a name="network"></a>
+               <div class="imgWrap" style="width: 330px;">
+                  <img src="assets/images/about/Pagechain.svgz" alt="Pagechain disagreements">
+               </div>
+               <h3>The Network</h3>
                <p>
-                  The Network
+                  As with most real-world security systems, we have to assume that not all Tor routers are honest. They could be wiretapped or act maliciously. How then do we prevent the network from being misled by a few malicious Quorum members? If there is disagreement, what previous Page should a new Page reference? We assume that the Quorum is mostly honest (a safe assumption) so the network can safely follow the largest set of equal Pages. This minimizes the threat from an attacker and keeps the network on the correct Pagechain.
                </p>
-               <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+               <p>
+                  Each Tor router participating in OnioNS checks for themselves that their Pagechain is correct and that new Records have unique domain names. Thus the network collectively makes decisions and can provide the globally-unique property. <a name="registration"></a> Moreover, everyone in the system can derive the current or any past Quorum, and the network status documents are signed by the directory authorities and so cannot be modified. This enables the network as a whole to derive and agree on a Quorum, and everyone can verify that each Page in their Pagechain was indeed managed by the Quorum.
+               </p>
 
-               <a name="structures"></a>
+               <h3>Domain Registration</h3>
+               <div class="imgWrap" style="width: 300px;">
+                  <img src="assets/images/about/broadcast.svgz" alt="Record broadcast to the Quorum."/>
+               </div>
                <p>
-                  Domain Registration.
+                  It is fairly straightforward to claim a domain name for a hidden service. First, a HS operator provides the second-level domain that they want and its destination, either to a .tor domain or a .onion address. To ensure that the Record is considered valid, their computer must then complete the proof-of-work (<a href="https://en.wikipedia.org/wiki/Scrypt">scrypt</a>) by finding an answer to a difficult problem. The proof-of-work introduces a cost to registration, minimizes abuse, and makes it more likely that the operator will actually use the domain.
                </p>
-               <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-
-               <a name="registration"></a>
                <p>
-                  Domain Registration
+                  The operator then transmits the completed Record to one of the Quorum nodes. The Quorum node checks the validity of the Record, the correctness of the proof-of-work, and the uniqueness of the domain name. If everything checks out, it accepts the Record. Later, the node sends the Record to all other Quorum nodes, who also check it. The HS operator can verify that this took place by confirming that another Quorum node has the Record. Each Quorum node then merges the Record into their Page and the rest of the network copies them. From the moment of transmission, the Record should propagate across the network and be accessible by users in about 20 minutes.
                </p>
-               <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 
                <a name="lookups"></a>
+               <h3>Lookups</h3>
                <p>
-                  Client Lookups
+                  It's easy to use OnioNS; no user interaction is required. Unlike most other distributed DNSs, OnioNS does not require users to download huge quantities of information. In most cases, this is impractical or simply not possible. Rather, the lookup is a simple query over a Tor circuit to a OnioNS-enabled Tor router. Tor users already have an existing level of trust in the Tor network. However, it is a trust-but-verify situation: users receive back minimal information, just enough to be able to sure that the response they receive is correct.
                </p>
-               <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+               <p>
+                  First, a user simply types in a .tor domain name, such as <b>example.tor</b>. Tor intercepts the .tor query and passes the domain name off to the OnioNS client software. The OnioNS software then queries a OnioNS server, receives back the HS' Record, and checks the Record's authenticity. It then passes the .onion address back to Tor, which contacts the HS in the usual way. As a result, the Tor Browser simply loads the HS website under the .tor domain name. In our tests, it takes about two seconds for the translation to occur, though the speed is circuit-dependent.
+               </p>
+               <div class="imgWrap centered" style="width: 450px;">
+                  <img src="assets/images/about/example.png" alt="Example.tor">
+               </div>
+               <p>
+                  We still allow hidden services to be accessed by their traditional .onion address, but the OnioNS lookup translation allows the process to be much easier. Now users can remember names for their favorite HS and operators have increased control over their hidden service. OnioNS also allows HSs to be migrated from one identity key to another without any downtime or even Tor's developers to change the hidden service protocol with minimal impact. We are interesting in seeing what can be done with hidden services under this new DNS.
+               </p>
             </div>
-
 <!--                                 -->
          </div>
       </div>
