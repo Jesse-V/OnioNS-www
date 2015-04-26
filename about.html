@@ -103,7 +103,7 @@
                   Tor provides an excellent <a href="https://www.torproject.org/about/overview.html.en">overview page</a> on how Tor works, so we will not reiterate it here. In summary though, Tor routes user traffic through three routers in the network, akin to using three randomly-selected VPNs or encrypted proxies in a row. A user negotiates encryption keys with each of these routers, then encrypts their web request with each of the keys. As their request passes through the network over the <i>circuit</i>, each Tor router decrypts a layer like the pealing of an onion. The final router reveals the website, loads the webpage, returns it, and the response is re-encrypted all the way back. In this way, the user has privacy (a separation of their identity with their activities) and is anonymous (indistinguishable from other users) with respect to the website they were visiting.
                </p>
                <p>
-                  Tor is also known for its support of <a href="https://www.torproject.org/docs/hidden-services.html.en">hidden services</a>, which are traditionally websites of unknown location or ownership. They purposely hide their location using the Tor network using circuits. Due to the privacy-enhancing nature of Tor circuits, it is exceedingly difficult to know where they are, so there is bi-directional anonymity. Tor supports nearly 27,000 hidden services, providing services such as <a href="https://en.wikipedia.org/wiki/DuckDuckGo">search engines</a>, marketplaces, email providers, and <a href="https://en.wikipedia.org/wiki/SecureDrop">media outlets</a>.
+                  Tor is also known for its support of <a href="https://www.torproject.org/docs/hidden-services.html.en">hidden services</a>, which are traditionally websites of unknown location or ownership. They purposely hide their location using the Tor network using circuits. Traffic from users to hidden services go through six Tor routers: the communication path is two Tor circuits (one from each end) that mate at some Tor router. Due to the privacy-enhancing nature of Tor circuits, it is exceedingly difficult to know where they are, so there is bi-directional anonymity. Tor supports nearly 27,000 hidden services, including <a href="https://en.wikipedia.org/wiki/DuckDuckGo">search engines</a>, marketplaces, email providers, and <a href="https://en.wikipedia.org/wiki/SecureDrop">media outlets</a>.
                </p>
                <div class="imgWrap" style="width: 500px;">
                   <img src="assets/images/about/DDG_HS.png" alt="DuckDuckGo hidden service">
@@ -126,7 +126,6 @@
                <h3>Records & Pages</h3>
                <div class="imgWrap" style="width: 430px;">
                   <img src="assets/images/about/network_view.png" alt="Network-level view">
-                  <!-- network_view.svgz -->
                </div>
                <p>
                   OnioNS has two fundamental data structures: <i>Records</i> and <i>Pages</i>.
@@ -155,7 +154,8 @@
                   Tor's network is dynamic, with routers changing, leaving, and joining the network constantly. To keep everyone up-to-date, Tor directory authorities periodically publish a network status document, describing the state and size of the Tor network. The document can't be predicted in advance, but if archived it can be authenticated retroactively. It's a source of unpredictable information that everyone agrees on, and OnioNS uses the network document to derive the Quorum. OnioNS changes to a new Quorum every week, so Quorum nodes have a limited lifetime and temporary responsibility.
                </p>
                <p>
-                  <a name="network"></a> Any participant in Tor can derive the Quorum: first, they fetch the network status at midnight at the beginning of the current week. Second, they find the Tor relays that are advertising themselves as part of OnioNS. Third, they randomly choose 127 of them. Their selection here is deterministic based on the contents of the document. Those 127 OnioNS-enabled Tor routers are the Quorum. Every OnioNS-powered Tor node has an equal chance of being selected, which is currently about 2.3 percent.
+                  <a name="network"></a>
+                  Any participant in Tor can derive the Quorum. Tor's consensus documents not only distributes the cryptographic keys of all Tor routers (including the Quorum) but also serves as a mechanism for distributing information on who qualifies as a candidate to be in the Quorum. We want to choose Tor routers that are fast, reliable, and are up-to-date with the system. Proof of these requirements are contained within the consensus documents. So to derive the Quorum, first a client fetches the network status at midnight at the beginning of the current week and finds Tor routers that are part of OnioNS. Next, they choose 127 of them, with their choice deterministic and dependent on the contents of the document. Those 127 OnioNS-enabled Tor routers are the Quorum. Every OnioNS-powered Tor node has an equal chance of being selected, which is currently about 2.3 percent.
                </p>
 
                <div class="imgWrap" style="width: 330px;">

@@ -51,8 +51,28 @@
          <div id="content">
 <!--                                 -->
             <h2>OnioNS Developer Documentation</h2>
+
+            <h3>Build Instructions</h3>
             <p>
-               Doxygen, info for developers, etc
+               Build instructions are currently <a href="https://github.com/Jesse-V/OnioNS/blob/master/README.md">hosted and maintained on Github</a>.
+            </p>
+            <p>
+               I am using Boost Asio for communication with Tor's SOCKS port and for hosting the TCP server for receiving requests. The server is asynchronous. CLI flags are handled by the TClap library, and base32 encoding by CyoEncode. Both are from projects on SourceForge. JSON encoding/decoding is provided by <a href="https://github.com/open-source-parsers/jsoncpp">jsoncpp</a>, which is under active development. I have checked the licenses, but please contact me if I missed something.
+            </p>
+
+            <h3>Doxygen</h3>
+            <p>
+               Doxygen documentation coming soon!
+            </p>
+
+            <h3>Code Organization</h3>
+            <p>
+               Most of the code is provided under the src/ directory. I have grouped classes into three classifications by responsibility: client/, hs/, and server/, these hold the protocols for the client, hidden service, and server, respectively. The common/ has protocols and resources common to all parties. The tcp/ directory in the client/ and server/ directories hold the networking for each party, respectively. I try to organize the code to focus responsibility, narrow scope, and minimize dependencies. That way, when you're browsing a class, you don't have to worry about any other functionality except what that class does.
+            </p>
+
+            <h3>Code Style</h3>
+            <p>
+               I found an industry standards guideline document long ago that I've followed ever since. I use vertical and horizontal spacing gratuitously. For loops are spaced out, and I insert three spaces between each method implementation. Method names are written in lower camel-case. Functions are as short as reasonably possible and narrow in scope. My coding style is consistent, but essentially if it maximizes readability and reduces the amount of code I have to juggle in my head, I will do it. Please examine the project source to see what I mean.
             </p>
 <!--                                 -->
          </div>

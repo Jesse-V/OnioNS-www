@@ -5,6 +5,8 @@
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
       <link rel="stylesheet" type="text/css" href="assets/css/common.css" />
       <link rel="stylesheet" type="text/css" href="assets/css/sideNav.css" />
+      <link rel="stylesheet" type="text/css" href="assets/css/table.css" />
+      <link rel="stylesheet" type="text/css" href="assets/css/technical.css" />
    </head>
    <body>
       <div id="header">
@@ -64,13 +66,13 @@
                </div>
                <div class="item">
                   <img src="assets/images/right-arrow.jpg" alt="Right arrow">
-                  <div class="title">System Metrics</div>
-                  <a href="technical-metrics.html"><span class="link"></span></a>
+                  <div class="title">System Participants</div>
+                  <a href="#participants"><span class="link"></span></a>
                </div>
                <div class="item">
                   <img src="assets/images/right-arrow.jpg" alt="Right arrow">
-                  <div class="title">Cryptographic</div>
-                  <a href="#cryptographic"><span class="link"></span></a>
+                  <div class="title">Cryptography</div>
+                  <a href="#cryptography"><span class="link"></span></a>
                </div>
                <div class="item">
                   <img src="assets/images/right-arrow.jpg" alt="Right arrow">
@@ -79,44 +81,328 @@
                </div>
                <div class="item">
                   <img src="assets/images/right-arrow.jpg" alt="Right arrow">
-                  <div class="title">Algorithms & Protocols</div>
+                  <div class="title">Protocols</div>
                   <a href="#algorithms"><span class="link"></span></a>
                </div>
             </div>
             <div id="main">
                <h2>OnioNS Technical Documentation</h2>
                <p>
-                  This page references material from Sections 5.4 - 5.7 in the <a href="https://github.com/Jesse-V/Thesis/raw/master/thesis.pdf">OnioNS thesis</a>. Please see those pages for more information. We also have a page for <a href="technical-docs.html">developer documentation</a>.
+                  This page explains how OnioNS is structured and operates in detail. We jump into technical explanations and assume that the reader has background knowledge in Tor's design. We also have a page for <a href="technical-docs.html">developer documentation</a>. Metrics and statistics on OnioNS can be found on the <a href="technical-metrics.html">OnioNS Metrics</a> page.
+               </p>
 
-                  Protocol details, command-line control examples
-               </p>
+               <h3>OnioNS Technical Overview</h3>
                <p>
-                  The overview of OnioNS.
+                  Like Tor, the design of the Onion Name System is relatively straightforward. A hidden service operator claims a domain name, associates it with his HS address, and self-signs a Record. He sends the Record over Tor circuits to a subset of periodically-rotating and randomly-selected Tor routers called the Quorum. The Quorum collectively merges the Record into the distributed Pagechain data structure, which causes the Record to propagate across the network. Later, a client queries some OnioNS-enabled Tor router for the HS domain name and receives back the Record. The client then verifies that the Record's signature matches the destination HS, and contacts the HS in the usual way. Of course, Record uploads and client queries occur asynchronously, but that that is the general procedure for the communication pipeline.
                </p>
-               <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 
                <a name="administration"></a>
-               <p>
-                  How to configure and control the OnioNS software.
-               </p>
-               <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+               <div class="centered">
+                  <img src="assets/images/about/broadcast.svgz" alt="Record broadcast to the Quorum."/>
+                  <img src="assets/images/about/network_view.svgz" alt="Network-level view">
+               </div>
 
-               <a name="cryptographic"></a>
+               <a name="participants"></a>
+               <h3>OnioNS Administration</h3>
                <p>
-                  Cryptographic primitives.
+                  This section will describe how to configure and control the OnioNS software, and will be expanded when the project is more complete.
                </p>
-               <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 
-               <a name="structures"></a>
+               <h3>System Participants</h3>
                <p>
-                  Data structures.
+                  The Onion Name System is powered by the Tor network, so aside from clients and hidden services, all other parties in OnioNS are also assumed to have Tor responsibilities. We use the Tor network because eliminates the need to create a new network, relies on a thoroughly-scrutinized and generally trusted network, and because Tor provides a handy public-key and information infrastructure via the network status documents. So the OnioNS network is a subset of the Tor network.
                </p>
-               <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+               <p>
+                  We group OnioNS servers into three main classifications:
+               </p>
+               <ul>
+                  <li>
+                     <b>Mirrors</b>
+                     <p>
+                        A Mirror is any machine in the Tor network that has performed a full synchronization against the OnioNS network and now holds a complete, authentic, and up-to-date copy of the master Pagechain. Mirrors are passive: although they act as query resolvers for clients, they do not have the power to manipulate the master Pagechain.
+                     </p>
+                     <p>
+                        Mirrors stay synchronized with the current Quorum, so they refresh the head of their local Pagechain when the Quorum updates theirs. This allows new Records to propagate quickly across the network. Note that a Mirror could theoretically be outside the Tor network, but for simplicity we do not consider that possibility here.
+                     </p>
+                  </li>
+                  <div class="imgWrap" style="width: 350px;">
+                     <img src="assets/images/about/participants.png" alt="OnioNS participants">
+                  </div>
+                  <li>
+                     <b>Quorum Candidates</b>
+                     <p>
+                        A Quorum Candidate is a Mirror inside the Tor network that fufills two additional requirements: 1) that they are an up-to-date Mirror, and 2) that they have sufficient CPU and bandwidth capabilities to handle OnioNS in addition to their regular Tor duties. In other words, they are qualified and capable to power OnioNS, but have not yet been chosen to do so.
+                     </p>
+                     <p>
+                        Quorum Candidates prove the first requirement by combining a hash of their local Pagechain with <a href="https://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm">a time-based value</a> of their local Pagechain in their router microdescriptor. If the router's hash is in the largest set of equal hashes, then it has proved that it is an up-to-date Mirror. To ease integration with Tor, we plan on publishing the hash in the Contact field, but are also aware that Tor provides mechanisms for providing a custom microdescriptor field, which we may switch to eventually.
+                     </p>
+                     <p>
+                        Tor already provides a convenient mechanism for proving the second requirement: router status flags. Quorum Candidates must have the Fast, Valid, and Stable flags.
+                     </p>
+                  </li>
+                  <li>
+                     <b>Quorum</b>
+                     <p>
+                        The Quorum is a subset of Quorum Candidates who have active responsibility over maintaining the master OnioNS Pagechain. Each Quorum node maintains a Page at the head of its local Pagechain, but as all Quorum nodes receive broadcasts of Records, they should all be maintaining the same Page. They each digitally sign this Page, with public keys distributed through consensus documents. The Quorum is randomly selected once a week from the pool of Quorum Candidates.
+                     </p>
+                     <p>
+                        Alice, a Tor user, can derive the Quorum easily from the network status document in the following manner:
+                     </p>
+                     <ol>
+                        <li>
+                           Alice obtains and authenticates the network status published by the directory authorities (dirauths) at 00:00 GMT at the beginning of that week.
+                        </li>
+                        <li>
+                           Alice scans the list of Tor routers and finds the Quorum Candidates.
+                        </li>
+                        <li>
+                           Alice hashes the entire document and seeds a PRNG with the hash.
+                        </li>
+                        <li>
+                           Alice scrambles the list of Quorum Candidates with the PRNG.
+                        </li>
+                        <li>
+                           The first 127 routers in the scrambled list are the Quorum for that week.
+                        </li>
+                     </ol>
+                     <a name="cryptography"></a>
+                     <p>
+                        Alice can also do this retrospectively by fetching an archived copy of the network status, verifying it against the dirauth signing keys, and then deriving the Quorum as usual. Mirrors can also follow this procedure to check the authenticity of their local Pagechain; they can derive the Quorum at any point in the past and verify the signatures on the Page(s) that they maintained. Each individual Mirror can do this, so collectively the network will reject attempts by an attacker to change the Quorum or modify old Pages.
+                     </p>
+                  </li>
+               </ul>
+
+               <h3>Cryptographic Primitives</h3>
+               <p>
+                  OnionNS makes use of cryptographic hash algorithms, digital signatures, proof-of-work, and a pseudorandom number generator. We require that Tor routers generate an Ed25519 keypair and distribute the public key via microdescriptors. There are plans for Tor do to this for other purposes, so we can piggy-back off of or accelerate those plans here.
+               </p>
+               <ul class="crypto">
+                  <li>
+                     Let H(x) be a cryptographic hash function. We implement H(x) as SHA-384.
+                  </li>
+                  <li>
+                     Let S<sub>d</sub>(m, r) be a deterministic RSA digital signature function that accepts a message <i>m</i> and a private RSA key <i>r</i> and returns an RSA digital signature. Let S<sub>d</sub>(m, r) use H(x) as a digest function on <i>m</i> in all use cases. We implement S<sub>d</sub>(m, r) as <a href="https://en.wikipedia.org/wiki/PKCS_1#Schemes">EMSA-PSS (EMSA4)</a>.
+                  </li>
+                  <li>
+                     Let S<sub>ed</sub>(m, e) be an <a href="https://en.wikipedia.org/wiki/EdDSA">Ed25519</a> digital signature function that accepts a message <i>m</i> and a private key <i>e</i> and returns an Ed25519 digital signature of <i>m</i> under <i>e</i>. Although it is technically possible to recycle NTor keys to Ed25519 and use them for digital signatures (<a href="https://en.wikipedia.org/wiki/Curve25519">Curve25519</a> and Ed25519 use the same private key), it is <a href="http://crypto-users.996303.n3.nabble.com/curve25519-td3802.html">unknown</a> if this is cryptographically sound. Therefore we require Ed25519.
+                  </li>
+                  <li>
+                     Let V<sub>ed</sub>(m, E) validate an Ed25519 digital signature by accepting a message <i>m</i> and a public key E, and return true if the signature is valid. Let V<sub>ed</sub>(m, E) use H(x) as a digest function on m in all use cases.
+                  </li>
+                  <a name="structures"></a>
+                  <li>
+                     Let PoW(k) be a strong proof-of-work scheme that accepts an input key k and returns a derived key. We implement PoW(k) as <a href="https://en.wikipedia.org/wiki/Scrypt">scrypt</a> with a fixed salt.
+                  </li>
+                  <li>
+                     Let R(s) be a pseudorandom number generator that accepts an initial seed s and returns a list of numerical pseudorandom numbers. We implement R(s) as MT19937, commonly known as the <a href="https://en.wikipedia.org/wiki/Mersenne_Twister">Mersenne Twister</a>.
+                  </li>
+               </ul>
+
+               <h3>Data Structures</h3>
+               <p>
+                  OnioNS describes three main data structures: Records, Snapshots, and Pages. For the sake of brevity, in this section Alice is a Tor client and Bob is a hidden service operator.
+               </p>
+
+               <h4>Record</h4>
+               <p>
+                  A Record is a small textual data structure that contains one or more domain-destination pairs, proof-of-work, a digital signature, and a public key. Bob creates and sends Records to Charlie. Every Record is self-signed with the hidden service's key.
+               </p>
+               <p>
+                  There are five different types of Records: Create, Modify, Move, Renew, and Delete. The latter four Records mimic the format of the Create Record with minor exceptions. The proof-of-work difficulty is proportional to the number of second-level domain names claimed in the Record. Modify, Move, and Renew Records have a difficulty a fourth of Create Records.
+               </p>
+
+               <h5>Create Record</h5>
+               <table>
+                  <tr>
+                     <th>Field Name</th>
+                     <th>Description</th>
+                  </tr>
+                  <tr>
+                     <td>type</td>
+                     <td>A textual label containing the type of Record. In this
+case, type is set to "Create".</td>
+                  </tr>
+                  <tr>
+                     <td>nameList</td>
+                     <td>An array list of domain names and their destinations. The list includes one or more second-level domain names, while the remainder of the list contains zero or more sub-domains (names at level < 2) under the second-level do-mains. In this way, records can be referenced by their unique second-level domain names. Destinations use either .tor or .onion TLDs.</td>
+                  </tr>
+                  <tr>
+                     <td>contact</td>
+                     <td>Bob's PGP key fingerprint if he has one, or left blank if he chooses not to provide it. If specified, Alice can use this to contact Bob over encrypted email.</td>
+                  </tr>
+                  <tr>
+                     <td>timestamp</td>
+                     <td>The UNIX timestamp of when the Record was created.</td>
+                  </tr>
+                  <tr>
+                     <td>consensusHash</td>
+                     <td>The H(x) of the consensus document that generated the Quorum at the time of Record generation</td>
+                  </tr>
+                  <tr>
+                     <td>nonce</td>
+                     <td>Four random bytes</td>
+                  </tr>
+                  <tr>
+                     <td>pow</td>
+                     <td>16 bytes that store the output of PoW(i).</td>
+                  </tr>
+                  <tr>
+                     <td>recordSig</td>
+                     <td>
+                        The output of S<sub>d</sub>(m, r) where <i>m</i> = <i>nameList</i> || <i>timestamp</i> || <i>consensusHash</i> || <i>nonce</i> <i>pow</i>, and <i>r</i> is Bob's private RSA key.
+                     </td>
+                  </tr>
+                  <tr>
+                     <td>pubHSKey</td>
+                     <td>Bob's public RSA key.</td>
+                  </tr>
+               </table>
+
+               <h5>Modify Record</h5>
+               <p>
+                  A Modify Record allows Bob to update his registration. Bob corrects the fields, updates <i>timestamp</i> and <i>consensusHash</i>, revalidates the proof-of-work, and transmits the record. Modify Records can be used to add and remove domain names but cannot be used to claim additional second-level domains.
+               </p>
+
+               <h5>Move Record</h5>
+               <p>
+                  A Move Record is used to transfer one or more second-level domain names and all associated subdomains from one HS to another. Move Records have two additional fields: <i>target</i>, a list of domain-destination pairs; and <i>destPubKey</i>, the public key of the new owner. Domain names and their destinations contained in target cannot be modified; they must match the latest Create, Renew, or Modify record that defined them.
+               </p>
+
+               <h5>Renew Record</h5>
+               <p>
+                  Second-level domain names (and their associated domain names) expire when the latest Page that contains them is the oldest Page in the Pagechain. As the Pagechain has a maximum length, this oldest Page will be dropped when a new one is added. Therefore, Bob must issue Renew Records periodically to preserve ownership of his domain name. No modifications to existing domain names can be made in Renew Records, and the domain names contained within must already exist in the Pagechain.
+               </p>
+
+               <h4>Snapshot</h4>
+               <p>
+                  A Snapshot is textual database designed to hold collections of Records in a short-term volatile cache. They are used to transmit sets of Records between Quorum members.
+               </p>
+               <table>
+                  <tr>
+                     <th>Field Name</th>
+                     <th>Description</th>
+                  </tr>
+                  <tr>
+                     <td>originTime</td>
+                     <td>Unix time when the snapshot was first created.</td>
+                  </tr>
+                  <tr>
+                     <td>recentRecords</td>
+                     <td>A array list of records in reverse chronological order by receive time.</td>
+                  </tr>
+                  <tr>
+                     <td>fingerprint</td>
+                     <td>The Tor fingerprint of the router maintaining this Snapshot.</td>
+                  </tr>
+                  <tr>
+                     <td>snapshotSig</td>
+                     <td>The output of S<sub>ed</sub>(<i>originTime</i> || <i>recentRecords<i/> || <i>fingerprint<i/>], e) where <i>e</i> is the router's private Ed25519 key.
+                  </tr>
+               </table>
+
+               <h4>Page</h4>
+               <p>
+                  A Page is textual database designed to archive one or more Records in long-term storage. Pages are held and digitally signed by OnioNS nodes and are writable only for fixed periods of time before they are read-only. Each Page contains a link to a previous Page, forming an append-only public ledger known as an Pagechain. All Tor routers participating in OnioNS hold this Pagechain.
+               </p>
+               <table>
+                  <tr>
+                     <th>Field Name</th>
+                     <th>Description</th>
+                  </tr>
+                  <tr>
+                     <td>prevHash</td>
+                     <td>The H(<i>prevHash</i> || <i>recordList</i> || <i>consensusDocHash</i>) of some previous Page.
+                  </tr>
+                  <tr>
+                     <td>recordList</td>
+                     <td>An array list of records, sorted in a deterministic manner.</td>
+                  </tr>
+                  <tr>
+                     <td>consensusDocHash</td>
+                     <td>H(cd) where <i>cd</i> is the network status document that defined the current Quorum.</td>
+                  </tr>
+                  <tr>
+                     <td>fingerprint</td>
+                     <td>The Tor fingerprint of the router maintaining this Page.</td>
+                  </tr>
+                  <tr>
+                     <td>pageSig</td>
+                     <td>The output of S<sub>ed</sub>(H(<i>prevHash</i> || <i>recordList</i> || <i>consensusDocHash</i>)], e) where <i>e</i> is the router's private Ed25519 key.
+                  </tr>
+               </table>
 
                <a name="algorithms"></a>
+               <h3>Algorithms and Protocols</h3>
+
                <p>
-                  Protocols and such.
+                  The protocols are described in detail in Section 5.6 in the <a href="https://github.com/Jesse-V/Thesis/raw/master/thesis.pdf">OnioNS thesis</a>. It is fairly tedious to translate them from LaTeX to HTML, so for now they are there. Please see that section for more information.
                </p>
+
+<!--
+               <h4>Hidden Service Protocols</h4>
+
+               <h5>Record Generation</h5>
+               <p>
+                  As invalid Records will be rejected by the network, Bob must generate a valid Record before broadcast:
+               </p>
+               <ol>
+                  <li>
+                     Bob selects the value for type based on the desired operation.
+                  </li>
+                  <li>
+                     Bob constructs the nameList domain-destination associations.
+                  </li>
+                  <li>
+                     Bob provides his PGP key fingerprint in contact or leaves it blank if he doesn't have a PGP key or if he chooses not to disclose it. Bob can derive his PGP fingerprint with the <i>gpg --fingerprint</i> Unix command.
+                  </li>
+                  <li>
+                     Bob records the number of seconds since the Unix epoch in timestamp.
+                  </li>
+                  <li>
+                     Bob sets consensusHash to the output of H(x), where x is the consensus documents published at 00:00 GMT at the beginning of that week.
+                  </li>
+                  <li>
+                     Bob initially defines nonce as four zeros.
+                  </li>
+                  <li>
+                     Bob defines <i>central</i> as <i>nameList</i> || <i>contact</i> || <i>timestamp</i> || <i>consensusHash</i> || <i>nonce</i>.
+                  </li>
+                  <li>
+                     Bob defines <i>pow</i> as PoW(central).
+                  </li>
+                  <li>
+                     Bob sets <i>recordSig</i> as the output of S<sub>d</sub>(m, r) where <i>m</i> = <i>central</i> || <i>pow</i> and <i>r</i> is Bob's private RSA key.
+                  </li>
+                  <li>
+                     Bob saves the PKCS.1 DER encoding of his RSA public key in pubHSKey.
+                  </li>
+                  <li>
+                     Bob then must increment <i>nonce</i> and reset <i>pow</i> and <i>recordSig</i> until H(<i>central</i> || <i>pow</i> || <i>recordSig</i>) <= 2 difficulty*count where <i>difficulty</i> is a fixed constant that specifies the work difficulty and <i>count</i> is the number of second-level domain names claimed in the Record.
+                  </li>
+               </ol>
+
+               <h5>Record Broadcast</h5>
+               <ol>
+                  <li>
+                     Bob derives the current Quorum by the Quorum Derivation protocol described below.
+                  </li>
+                  <li>
+                     Bob constructs a circuit, c<sub>1</sub>, to a Mirror node m<sub>1</sub>.
+                  </li>
+                  <li>
+                     Bob fetches from c<sub>1</sub> the h<sub>j</sub> = H(<i>prevHash</i>recordList consensusDocHash)
+hash and pageSig (the Ed25519 signature on that hash) from each Quorum node.
+4. Bob confirms that V ed (h j , E) returns true for each h j and defines U as the largest set
+of Quorum nodes that have the same hash.
+5. Bob randomly chooses a node n 1 from U and builds a circuit to it, c 2 .
+6. Bob uploads his Record through c 2 to n 1 .48
+7. Bob waits up to ∆s minutes for the next s flood iteration.
+8. Bob uses c 1 to ask m 1 for any second-level domain name contained in his Record.
+9. Bob has confirmation that his Record was accepted and processed by the Quorum if
+m 1 returns the Record he uploaded.
+10. If m 1 does not return Bob's Record, he can either query another Mirror or repeat this
+procedure and broadcast to a different Quorum node.
+-->
             </div>
 <!--                                 -->
          </div>
